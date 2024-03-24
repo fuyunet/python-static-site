@@ -50,8 +50,3 @@ def text_node_to_html_node(text_node: "TextNode"):
             props={"src": text_node.url, "alt": text_node.text},
         )
     raise ValueError(f"Invalid text type: {text_node.text_type}")
-
-
-# TODO: Chapter 3: Inline, 1.Split delimiter
-def split_nodes_delimiter(old_nodes, delimiter, text_type):
-    pass
