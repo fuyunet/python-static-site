@@ -1,8 +1,5 @@
 import re
-from textnode import (
-    TextNode,
-    text_type_text,
-)
+from textnode import TextNode, text_type_text, text_type_image, text_type_link
 
 
 def split_nodes_delimiter(
@@ -28,6 +25,56 @@ def split_nodes_delimiter(
             else:
                 new_split.append(TextNode(value, text_type))
         new_list.extend(new_split)
+    return new_list
+
+
+def split_nodes_image(old_nodes: list[TextNode]) -> list[TextNode]:
+    new_list = []
+    for old_node in old_nodes:
+        if old_node.text_type != text_type_text:
+            new_list.append(old_node)
+            continue
+        copy_text = old_node.text
+        image_tups = extract_markdown_images(copy_text)
+        if len(image_tups) == 0:
+            new_list.append(old_nodes)
+            continue
+        for image_tup in image_tups:
+            texts = copy_text.split(f"![{image_tup[0]}]({image_tup[1]})", 1)
+            if len(texts) != 2:
+                raise ValueError("Invalid markdown, image section not closed")
+            if len(texts[0]) != 0:
+                new_list.append(TextNode(texts[0], text_type_text))
+            new_list.append(
+                TextNode(image_tup[0], text_type_image, image_tup[1])
+            )
+            copy_text = texts[1]
+        if len(copy_text) != 0:
+            new_list.append(TextNode(copy_text, text_type_text))
+    return new_list
+
+
+def split_nodes_link(old_nodes: list[TextNode]) -> list[TextNode]:
+    new_list = []
+    for old_node in old_nodes:
+        if old_node.text_type != text_type_text:
+            new_list.append(old_node)
+            continue
+        copy_text = old_node.text
+        link_tups = extract_markdown_links(copy_text)
+        if len(link_tups) == 0:
+            new_list.append(old_nodes)
+            continue
+        for link_tup in link_tups:
+            texts = copy_text.split(f"[{link_tup[0]}]({link_tup[1]})", 1)
+            if len(texts) != 2:
+                raise ValueError("Invalid markdown, link section not closed")
+            if len(texts[0]) != 0:
+                new_list.append(TextNode(texts[0], text_type_text))
+            new_list.append(TextNode(link_tup[0], text_type_link, link_tup[1]))
+            copy_text = texts[1]
+        if len(copy_text) != 0:
+            new_list.append(TextNode(copy_text, text_type_text))
     return new_list
 
 
