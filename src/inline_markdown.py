@@ -1,5 +1,13 @@
 import re
-from textnode import TextNode, text_type_text, text_type_image, text_type_link
+from textnode import (
+    TextNode,
+    text_type_text,
+    text_type_image,
+    text_type_link,
+    text_type_bold,
+    text_type_italic,
+    text_type_code,
+)
 
 
 def split_nodes_delimiter(
@@ -8,7 +16,7 @@ def split_nodes_delimiter(
     new_list = []
     for text_node in old_nodes:
         if text_node.text_type != text_type_text:
-            new_list.extend(text_node)
+            new_list.append(text_node)
             continue
 
         count = text_node.text.count(delimiter)
@@ -37,7 +45,7 @@ def split_nodes_image(old_nodes: list[TextNode]) -> list[TextNode]:
         copy_text = old_node.text
         image_tups = extract_markdown_images(copy_text)
         if len(image_tups) == 0:
-            new_list.append(old_nodes)
+            new_list.append(old_node)
             continue
         for image_tup in image_tups:
             texts = copy_text.split(f"![{image_tup[0]}]({image_tup[1]})", 1)
@@ -63,7 +71,7 @@ def split_nodes_link(old_nodes: list[TextNode]) -> list[TextNode]:
         copy_text = old_node.text
         link_tups = extract_markdown_links(copy_text)
         if len(link_tups) == 0:
-            new_list.append(old_nodes)
+            new_list.append(old_node)
             continue
         for link_tup in link_tups:
             texts = copy_text.split(f"[{link_tup[0]}]({link_tup[1]})", 1)
@@ -76,6 +84,16 @@ def split_nodes_link(old_nodes: list[TextNode]) -> list[TextNode]:
         if len(copy_text) != 0:
             new_list.append(TextNode(copy_text, text_type_text))
     return new_list
+
+
+def text_to_textnodes(text: str) -> list[TextNode]:
+    nodes = [TextNode(text, text_type_text)]
+    nodes = split_nodes_delimiter(nodes, "**", text_type_bold)
+    nodes = split_nodes_delimiter(nodes, "*", text_type_italic)
+    nodes = split_nodes_delimiter(nodes, "`", text_type_code)
+    nodes = split_nodes_image(nodes)
+    nodes = split_nodes_link(nodes)
+    return nodes
 
 
 def extract_markdown_images(text: str) -> tuple(list[str, str]):
