@@ -27,7 +27,7 @@ class TextNode:
 
 def text_node_to_html_node(text_node: "TextNode"):
     if text_node.text_type is text_type_text:
-        return LeafNode(value=text_node.text)
+        return LeafNode(tag=None, value=text_node.text)
 
     if text_node.text_type is text_type_bold:
         return LeafNode(tag="b", value=text_node.text)
