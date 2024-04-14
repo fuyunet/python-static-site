@@ -10,6 +10,15 @@ block_type_olist = "ordered_list"
 block_type_ulist = "unordered_list"
 
 
+def markdown_to_html_node(markdown):
+    blocks = markdown_to_blocks(markdown)
+    children = []
+    for block in blocks:
+        html_node = block_to_html_node(block)
+        children.append(html_node)
+    return ParentNode("div", children, None)
+
+
 def markdown_to_blocks(markdwon: str) -> list[str]:
     block_str = markdwon.split("\n\n")
     filtered_blocks = []
@@ -19,15 +28,6 @@ def markdown_to_blocks(markdwon: str) -> list[str]:
         str = str.strip()
         filtered_blocks.append(str)
     return filtered_blocks
-
-
-def markdown_to_html_node(markdown):
-    blocks = markdown_to_blocks(markdown)
-    children = []
-    for block in blocks:
-        html_node = block_to_html_node(block)
-        children.append(html_node)
-    return ParentNode("div", children, None)
 
 
 def block_to_html_node(block):
