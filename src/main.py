@@ -1,9 +1,15 @@
-from textnode import TextNode
+from copystatic import initialCleanUp, copyFilesRecurr
+
+base = "./static"
+dst = "./public"
 
 
 def main():
-    textnode = TextNode("This is a text node", "bold", "https://www.boot.dev")
-    print(textnode)
+    print("Deleting public directory...")
+    initialCleanUp(dst)
+
+    print("Copying static files to public directory...")
+    copyFilesRecurr(base, dst)
 
 
 main()
